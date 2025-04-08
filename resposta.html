@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados da Votação</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      padding: 40px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .resultado {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .pergunta {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .votos {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .voto-sim {
+      color: #27ae60;
+    }
+
+    .voto-nao {
+      color: #c0392b;
+    }
+
+    .carregando {
+      text-align: center;
+      font-size: 18px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resultados de Todas as Perguntas</h1>
+  <div id="resultados" class="carregando">Carregando...</div>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxg0TL7TWV9kfFG-28Q1dCghhXa4qJsx1EIY5QTtyNJDqhmGQlWxhe0gZ8eY_QsTKLR/exec';
+
+    fetch(`${scriptURL}?action=resultados_todas`)
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('resultados');
+        container.innerHTML = ''; // limpar "Carregando..."
+
+        if (!data.resultados || data.resultados.length === 0) {
+          container.innerHTML = '<p>Nenhum resultado disponível.</p>';
+          return;
+        }
+
+        data.resultados.forEach(resultado => {
+          const div = document.createElement('div');
+          div.className = 'resultado';
+          div.innerHTML = `
+            <div class="pergunta">${resultado.pergunta}</div>
+            <div class="votos">
+              <span class="voto-sim">👍 Sim: ${resultado.votos.Sim}</span>
+              <span class="voto-nao">👎 Não: ${resultado.votos["Não"]}</span>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        document.getElementById('resultados').innerHTML = 'Erro ao carregar os resultados.';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>

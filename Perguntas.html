@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Votação</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      color: #444;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      margin: 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-sim {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-nao {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    #agradecimento {
+      display: none;
+      font-size: 22px;
+      color: #4CAF50;
+      margin-top: 30px;
+    }
+
+    .oculto {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="pergunta">Carregando pergunta...</h1>
+
+  <div id="botoes">
+    <button class="btn btn-sim" onclick="votar('Sim')">Sim</button>
+    <button class="btn btn-nao" onclick="votar('Não')">Não</button>
+  </div>
+
+  <div id="agradecimento">✅ Obrigado por votar!</div>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxg0TL7TWV9kfFG-28Q1dCghhXa4qJsx1EIY5QTtyNJDqhmGQlWxhe0gZ8eY_QsTKLR/exec';
+    let perguntaAtual = '';
+
+    function carregarPergunta() {
+      fetch(scriptURL + '?action=pergunta_ativa')
+        .then(res => res.json())
+        .then(data => {
+          perguntaAtual = data.pergunta;
+          document.getElementById('pergunta').textContent = perguntaAtual;
+
+          const jaVotou = localStorage.getItem(perguntaAtual);
+          if (jaVotou) {
+            mostrarAgradecimento();
+          } else {
+            mostrarBotoes();
+          }
+        });
+    }
+
+    function votar(resposta) {
+      localStorage.setItem(perguntaAtual, resposta);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: new URLSearchParams({
+          pergunta: perguntaAtual,
+          voto: resposta
+        })
+      });
+
+      mostrarAgradecimento();
+    }
+
+    function mostrarAgradecimento() {
+      document.getElementById('botoes').classList.add('oculto');
+      document.getElementById('agradecimento').style.display = 'block';
+    }
+
+    function mostrarBotoes() {
+      document.getElementById('botoes').classList.remove('oculto');
+      document.getElementById('agradecimento').style.display = 'none';
+    }
+
+    carregarPergunta();
+  </script>
+</body>
+</html>
